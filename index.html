@@ -87,6 +87,16 @@
         }
         #submitDetails { width: 100%; background: #d63384; color: white; margin-top: 10px; }
         #final-thanks { display: none; }
+
+        /* Patrick's Signature */
+        .signature {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #d63384;
+            opacity: 0.8;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 15px;
+        }
     </style>
 </head>
 <body>
@@ -108,7 +118,6 @@
                 <source src="success-video.mp4" type="video/mp4">
             </video>
             <h1 style="font-size: 1.5rem;">YAY! ❤️ Pick a time?</h1>
-            
             <form id="finalForm">
                 <input type="hidden" name="access_key" value="0e2fe188-9dc1-4e57-aa96-993ecb127476">
                 <input type="hidden" name="from_name" value="Valentine Website">
@@ -116,13 +125,10 @@
 
                 <label>Which Day?</label>
                 <input type="date" name="date" required>
-                
                 <label>What Time?</label>
                 <input type="time" name="time" required>
-
                 <label>Special requests?</label>
-                <input type="text" name="notes" placeholder="Sushi, flowers, surprise me...">
-                
+                <input type="text" name="notes" placeholder=", flowers, surprise me...">
                 <button type="submit" id="submitDetails">Confirm the Date!</button>
             </form>
         </div>
@@ -132,6 +138,8 @@
             <h1>It's a Date!</h1>
             <p>I've received the details. See you then!</p>
         </div>
+
+        <div class="signature">made by Patrick M</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
@@ -157,12 +165,9 @@
         yesBtn.addEventListener('click', () => {
             mainContent.style.display = 'none';
             dateForm.style.display = 'block';
-            
-            // UNMUTE AND PLAY SUCCESS VIDEO
             video.muted = false;
             video.volume = 1.0;
-            video.play().catch(e => console.log("Audio play blocked by browser:", e));
-            
+            video.play();
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         });
 
@@ -170,7 +175,6 @@
             e.preventDefault();
             const btn = document.getElementById('submitDetails');
             btn.innerHTML = "Sending...";
-            
             fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
                 body: new FormData(this)
