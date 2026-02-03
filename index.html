@@ -93,6 +93,16 @@
         
         #submitDetails { width: 100%; background: #d63384; color: white; margin-top: 10px; }
         #final-thanks { display: none; }
+
+        .signature {
+            margin-top: 30px;
+            font-size: 0.9rem;
+            color: #d63384;
+            opacity: 0.8;
+            border-top: 1px solid #f0f0f0;
+            padding-top: 15px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -113,7 +123,7 @@
             <video id="celebrationVideo" class="media-box" controls playsinline>
                 <source src="success-video.mp4" type="video/mp4">
             </video>
-            <h1 style="font-size: 1.5rem;">YAY! ❤️ Pick a time?</h1>
+            <h1 style="font-size: 1.5rem;">YAY! ❤️ Let's Plan It!</h1>
             
             <form id="finalForm">
                 <input type="hidden" name="access_key" value="0e2fe188-9dc1-4e57-aa96-993ecb127476">
@@ -129,11 +139,15 @@
 
                 <label>Which Day?</label>
                 <input type="date" name="date" required>
+                
                 <label>What Time?</label>
                 <input type="time" name="time" required>
 
-                <label>Special requests?</label>
-                <input type="text" name="notes" placeholder="Sushi, flowers, surprise me...">
+                <label>Special Requests:</label>
+                <input type="text" name="requests" placeholder="chocolate, flowers,movie night, Surprise me...">
+
+                <label>Special Message:</label>
+                <textarea name="message" placeholder="Write your special message here..."></textarea>
                 
                 <button type="submit" id="submitDetails">Confirm the Date!</button>
             </form>
@@ -186,8 +200,13 @@
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('submitDetails');
-            btn.innerHTML = "Sending...";
-            
+            btn.innerHTML = "Sending Message...";
+            btn.disabled = true;
+
+            const formData = new FormData(form);
+            const object = Object.fromEntries(formData);
+            const json = JSON.stringify(object);
+
             fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
                 headers: {
