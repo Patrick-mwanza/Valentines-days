@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>A Special Surprise ❤️</title>
     <style>
+        /* Custom Heart Cursor */
+        html { cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="%23ff4d6d" d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>'), auto; }
+
         body {
             margin: 0;
             min-height: 100vh;
@@ -56,7 +59,7 @@
             justify-content: center;
             align-items: center;
             gap: 20px;
-            min-height: 100px;
+            min-height: 120px;
             position: relative;
         }
 
@@ -67,7 +70,7 @@
             border-radius: 50px;
             cursor: pointer;
             font-weight: bold;
-            transition: transform 0.2s;
+            transition: transform 0.2s, font-size 0.2s;
             touch-action: manipulation;
         }
 
@@ -75,20 +78,22 @@
         #noBtn { background: #888; color: white; position: absolute; z-index: 11; transition: all 0.15s ease-out; }
 
         #date-form-container { display: none; text-align: left; }
-        label { display: block; margin: 10px 0 5px; color: #d63384; font-weight: bold; }
-        input {
+        label { display: block; margin: 10px 0 5px; color: #d63384; font-weight: bold; font-size: 0.9rem; }
+        input, textarea {
             width: 100%;
             padding: 12px;
             border-radius: 12px;
             border: 2px solid #fad0c4;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             box-sizing: border-box;
             font-size: 1rem;
+            font-family: inherit;
         }
+        textarea { resize: vertical; min-height: 70px; }
+        
         #submitDetails { width: 100%; background: #d63384; color: white; margin-top: 10px; }
         #final-thanks { display: none; }
 
-        /* Patrick's Signature */
         .signature {
             margin-top: 30px;
             font-size: 0.9rem;
@@ -96,6 +101,7 @@
             opacity: 0.8;
             border-top: 1px solid #f0f0f0;
             padding-top: 15px;
+            text-align: center;
         }
     </style>
 </head>
@@ -117,18 +123,32 @@
             <video id="celebrationVideo" class="media-box" controls playsinline>
                 <source src="success-video.mp4" type="video/mp4">
             </video>
-            <h1 style="font-size: 1.5rem;">YAY! ❤️ Pick a time?</h1>
+            <h1 style="font-size: 1.5rem;">YAY! ❤️ Let's Plan It!</h1>
+            
             <form id="finalForm">
                 <input type="hidden" name="access_key" value="0e2fe188-9dc1-4e57-aa96-993ecb127476">
-                <input type="hidden" name="from_name" value="Valentine Website">
-                <input type="hidden" name="subject" value="URGENT: SHE PICKED A DATE! ❤️">
+                <input type="hidden" name="from_name" value="Valentine Surprise App">
+                <input type="hidden" name="subject" value="URGENT: SHE SAID YES! ❤️">
+                <input type="hidden" name="redirect" value="">
+
+                <label>Name:</label>
+                <input type="text" name="name" placeholder="What should I call you?" required>
+
+                <label>Email (Optional):</label>
+                <input type="email" name="email" placeholder="Your email (optional)">
 
                 <label>Which Day?</label>
                 <input type="date" name="date" required>
+                
                 <label>What Time?</label>
                 <input type="time" name="time" required>
-                <label>Special requests?</label>
-                <input type="text" name="notes" placeholder="chocolate, flowers,movie night, surprise me...">
+
+                <label>Special Requests:</label>
+                <input type="text" name="requests" placeholder="chocolate, flowers,movie night, Surprise me...">
+
+                <label>Special Message:</label>
+                <textarea name="message" placeholder="Write your special message here..."></textarea>
+                
                 <button type="submit" id="submitDetails">Confirm the Date!</button>
             </form>
         </div>
@@ -136,7 +156,7 @@
         <div id="final-thanks">
             <h1 style="font-size: 3rem;">🥰</h1>
             <h1>It's a Date!</h1>
-            <p>I've received the details. See you then!</p>
+            <p>I've received the details. I can't wait!</p>
         </div>
 
         <div class="signature">made by Patrick M</div>
@@ -151,12 +171,17 @@
         const finalThanks = document.getElementById('final-thanks');
         const video = document.getElementById('celebrationVideo');
 
+        let yesSize = 1.2;
+
         const moveNo = () => {
             const x = Math.random() * (window.innerWidth - noBtn.offsetWidth - 40);
             const y = Math.random() * (window.innerHeight - noBtn.offsetHeight - 40);
             noBtn.style.position = 'fixed';
             noBtn.style.left = x + 'px';
             noBtn.style.top = y + 'px';
+
+            yesSize += 0.15;
+            yesBtn.style.transform = `scale(${yesSize})`;
         };
 
         noBtn.addEventListener('mouseover', moveNo);
@@ -171,17 +196,43 @@
             confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
         });
 
-        document.getElementById('finalForm').addEventListener('submit', function(e) {
+        const form = document.getElementById('finalForm');
+        form.addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('submitDetails');
-            btn.innerHTML = "Sending...";
+            btn.innerHTML = "Sending Message...";
+            btn.disabled = true;
+
+            const formData = new FormData(form);
+            const object = Object.fromEntries(formData);
+            const json = JSON.stringify(object);
+
             fetch('https://api.web3forms.com/submit', {
                 method: 'POST',
-                body: new FormData(this)
-            }).then(() => {
-                dateForm.style.display = 'none';
-                finalThanks.style.display = 'block';
-                confetti({ particleCount: 200, spread: 100 });
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: json
+            })
+            .then(async (response) => {
+                let json = await response.json();
+                if (response.status == 200) {
+                    dateForm.style.display = 'none';
+                    finalThanks.style.display = 'block';
+                    confetti({ particleCount: 200, spread: 100 });
+                } else {
+                    console.log(response);
+                    alert("Error: " + json.message);
+                    btn.disabled = false;
+                    btn.innerHTML = "Confirm the Date!";
+                }
+            })
+            .catch(error => {
+                console.log(error);
+                alert("Something went wrong. Please check your internet!");
+                btn.disabled = false;
+                btn.innerHTML = "Confirm the Date!";
             });
         });
     </script>
